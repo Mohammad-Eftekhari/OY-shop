@@ -271,7 +271,7 @@ One row per online payment attempt. An order may have several attempts. No provi
 
 ## Invariants enforced in application code
 
-These rules are not implemented in this version. Later checkout code must follow them.
+The shop API in `specs/003-shop-api` enforces these rules.
 
 - Only a signed-in account can own a cart, an address, or an order. There is no guest cart.
 - Placing an order runs in one database transaction. The transaction checks that each variant is active and has enough stock, inserts the order and items, decrements `stockQuantity` by the ordered quantity, and inserts a pending payment.

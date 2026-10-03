@@ -42,3 +42,9 @@ export const PAYMENT_STATUSES = [
   EPaymentStatus.succeeded,
   EPaymentStatus.failed,
 ] as const;
+
+export const EPaymentProvider = {
+  unassigned: "unassigned",
+} as const;
+
+export const PAYMENT_WINDOW_MINUTES = 30;

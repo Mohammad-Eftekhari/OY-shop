@@ -12,7 +12,7 @@ type TAppProvidersProps = {
 
 export function AppProviders({ children }: TAppProvidersProps) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
       <QueryProvider>
         {children}
         <Toaster />

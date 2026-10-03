@@ -9,7 +9,7 @@ export default async function NotFound() {
   const copy = getDictionary(await getLocale());
 
   return (
-    <section className="flex max-w-lg flex-col gap-4">
+    <section className="mx-auto flex w-full max-w-lg flex-col gap-4 px-6 py-16">
       <h1 className="text-2xl font-semibold">{copy.notFound.title}</h1>
       <p className="text-muted-foreground">{copy.notFound.description}</p>
       <div>

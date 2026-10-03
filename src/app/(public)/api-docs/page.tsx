@@ -11,5 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default function ApiDocsPage() {
-  return <ApiDocs />;
+  return (
+    <div className="px-6 py-8">
+      <ApiDocs />
+    </div>
+  );
 }

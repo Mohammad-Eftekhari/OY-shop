@@ -8,9 +8,10 @@ import { authClient } from "@/lib/auth/auth-client";
 
 type TSignOutButtonProps = {
   label: string;
+  className?: string;
 };
 
-export function SignOutButton({ label }: TSignOutButtonProps) {
+export function SignOutButton({ label, className }: TSignOutButtonProps) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -20,7 +21,7 @@ export function SignOutButton({ label }: TSignOutButtonProps) {
   }
 
   return (
-    <Button type="button" variant="outline" onClick={handleSignOut}>
+    <Button type="button" variant="ghost" className={className} onClick={handleSignOut}>
       {label}
     </Button>
   );

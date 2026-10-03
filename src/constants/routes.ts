@@ -1,11 +1,32 @@
 export const EAppRoutes = {
   home: "/",
+  products: "/products",
   signIn: "/sign-in",
   signUp: "/sign-up",
   dashboard: "/dashboard",
   profile: "/profile",
+  cart: "/cart",
+  checkout: "/checkout",
+  addresses: "/addresses",
+  orders: "/orders",
   apiDocs: "/api-docs",
 } as const;
+
+export function productPath(slug: string) {
+  return `${EAppRoutes.products}/${encodeURIComponent(slug)}`;
+}
+
+export function orderPath(orderNumber: string) {
+  return `${EAppRoutes.orders}/${encodeURIComponent(orderNumber)}`;
+}
+
+export function cartItemPath(variantId: string) {
+  return `/api/cart/items/${encodeURIComponent(variantId)}`;
+}
+
+export function orderApiPath(orderNumber: string) {
+  return `/api/orders/${encodeURIComponent(orderNumber)}`;
+}
 
 export const EApiRoutes = {
   health: "/api/health",

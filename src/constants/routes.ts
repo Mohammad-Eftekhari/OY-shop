@@ -4,6 +4,7 @@ export const EAppRoutes = {
   signUp: "/sign-up",
   dashboard: "/dashboard",
   profile: "/profile",
+  apiDocs: "/api-docs",
 } as const;
 
 export const EApiRoutes = {
@@ -11,6 +12,7 @@ export const EApiRoutes = {
   me: "/api/me",
   profile: "/api/profile",
   adminStatus: "/api/admin/status",
+  openapi: "/api/openapi",
   products: "/api/products",
   product: "/api/products/:slug",
   shippingMethods: "/api/shipping-methods",

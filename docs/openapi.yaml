@@ -1,0 +1,1935 @@
+openapi: 3.0.3
+info:
+  title: OY Shop API
+  version: 0.1.0
+  description: |
+    HTTP API for the shop catalog, cart, addresses, checkout, and admin fulfillment.
+    Account routes (`/api/auth`, `/api/me`, `/api/profile`) are documented in `docs/api.md`.
+    Money amounts are integers in toman. Records include Persian and English fields.
+    There is no payment gateway in this version. A new order stores provider `unassigned`.
+servers:
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: Catalog
+  - name: Shipping
+  - name: Cart
+  - name: Addresses
+  - name: Orders
+  - name: Admin
+paths:
+  /api/products:
+    get:
+      tags: [Catalog]
+      operationId: listProducts
+      summary: List published products
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/ProductType"
+      responses:
+        "200":
+          description: Published products with active variants and images
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductPage"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+  /api/products/{slug}:
+    get:
+      tags: [Catalog]
+      operationId: getProduct
+      summary: Get one published product
+      parameters:
+        - $ref: "#/components/parameters/Slug"
+      responses:
+        "200":
+          description: The published product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/shipping-methods:
+    get:
+      tags: [Shipping]
+      operationId: listShippingMethods
+      summary: List active shipping methods
+      responses:
+        "200":
+          description: Active shipping methods
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShippingMethodListEnvelope"
+  /api/cart:
+    get:
+      tags: [Cart]
+      operationId: getCart
+      summary: Read the signed-in customer's cart
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Cart lines. An account with no cart returns an empty list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+  /api/cart/items:
+    put:
+      tags: [Cart]
+      operationId: saveCartItem
+      summary: Add quantity to a cart line
+      description: |
+        Quantity greater than 0 adds that many units to the existing line.
+        The result cannot exceed stock. Quantity 0 removes the line.
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartItemWrite"
+      responses:
+        "200":
+          description: The updated cart
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRule"
+  /api/cart/items/{variantId}:
+    delete:
+      tags: [Cart]
+      operationId: deleteCartItem
+      summary: Remove one cart line
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/VariantId"
+      responses:
+        "200":
+          description: The updated cart
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/addresses:
+    get:
+      tags: [Addresses]
+      operationId: listAddresses
+      summary: List the signed-in customer's addresses
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Saved addresses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressListEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+    post:
+      tags: [Addresses]
+      operationId: createAddress
+      summary: Save an Iranian delivery address
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressWrite"
+      responses:
+        "201":
+          description: The saved address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/addresses/{addressId}:
+    patch:
+      tags: [Addresses]
+      operationId: updateAddress
+      summary: Update one of the customer's addresses
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/AddressId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressUpdate"
+      responses:
+        "200":
+          description: The updated address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      tags: [Addresses]
+      operationId: deleteAddress
+      summary: Delete one of the customer's addresses
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/AddressId"
+      responses:
+        "200":
+          description: The deleted address id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedIdEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/orders:
+    get:
+      tags: [Orders]
+      operationId: listOrders
+      summary: List the signed-in customer's orders
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Orders, newest first
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderPage"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+    post:
+      tags: [Orders]
+      operationId: placeOrder
+      summary: Check out the cart
+      description: |
+        Places the cart in one database transaction. Stock is reduced, the cart is cleared,
+        and the order stays `pending_payment` for 30 minutes. Discount is 0.
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaceOrder"
+      responses:
+        "201":
+          description: The placed order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRule"
+  /api/orders/{orderNumber}:
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      summary: Read one of the customer's orders
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/OrderNumber"
+      responses:
+        "200":
+          description: The order, including line snapshots and payment attempts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/admin/shop/colors:
+    post:
+      tags: [Admin]
+      operationId: createColor
+      summary: Create a color
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ColorWrite"
+      responses:
+        "201":
+          description: The created color
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ColorEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/colors/{colorId}:
+    patch:
+      tags: [Admin]
+      operationId: updateColor
+      summary: Update a color
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ColorId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ColorUpdate"
+      responses:
+        "200":
+          description: The updated color
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ColorEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/sizes:
+    post:
+      tags: [Admin]
+      operationId: createSize
+      summary: Create a size
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SizeWrite"
+      responses:
+        "201":
+          description: The created size
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SizeEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/sizes/{sizeId}:
+    patch:
+      tags: [Admin]
+      operationId: updateSize
+      summary: Update a size
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/SizeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SizeUpdate"
+      responses:
+        "200":
+          description: The updated size
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SizeEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/products:
+    post:
+      tags: [Admin]
+      operationId: createProduct
+      summary: Create a design
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductWrite"
+      responses:
+        "201":
+          description: The created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminProductEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/products/{productId}:
+    patch:
+      tags: [Admin]
+      operationId: updateProduct
+      summary: Update a design
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: The updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminProductEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/products/{productId}/images:
+    post:
+      tags: [Admin]
+      operationId: createProductImage
+      summary: Add a product image
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductImageWrite"
+      responses:
+        "201":
+          description: The created image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductImageEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/admin/shop/images/{imageId}:
+    patch:
+      tags: [Admin]
+      operationId: updateProductImage
+      summary: Update a product image
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ImageId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductImageUpdate"
+      responses:
+        "200":
+          description: The updated image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductImageEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/admin/shop/products/{productId}/variants:
+    post:
+      tags: [Admin]
+      operationId: createVariant
+      summary: Add a color and size
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VariantWrite"
+      responses:
+        "201":
+          description: The created variant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminVariantEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/variants/{variantId}:
+    patch:
+      tags: [Admin]
+      operationId: updateVariant
+      summary: Update a variant
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/VariantId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VariantUpdate"
+      responses:
+        "200":
+          description: The updated variant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminVariantEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    delete:
+      tags: [Admin]
+      operationId: deleteVariant
+      summary: Delete a variant that has never been ordered
+      description: A variant that appears on an order cannot be deleted. Set `isActive` to false instead.
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/VariantId"
+      responses:
+        "200":
+          description: The deleted variant id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedIdEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/admin/shop/shipping-methods:
+    post:
+      tags: [Admin]
+      operationId: createShippingMethod
+      summary: Create a shipping method
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShippingMethodWrite"
+      responses:
+        "201":
+          description: The created shipping method
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminShippingMethodEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/admin/shop/shipping-methods/{shippingMethodId}:
+    patch:
+      tags: [Admin]
+      operationId: updateShippingMethod
+      summary: Update a shipping method
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ShippingMethodId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShippingMethodUpdate"
+      responses:
+        "200":
+          description: The updated shipping method
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminShippingMethodEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/admin/shop/orders/{orderNumber}:
+    patch:
+      tags: [Admin]
+      operationId: updateFulfillment
+      summary: Move an order through fulfillment
+      description: |
+        Allowed moves are `paid` to `processing`, `processing` to `shipped`, `shipped` to `delivered`,
+        and `pending_payment`, `paid`, or `processing` to `cancelled`.
+        Shipped requires a tracking code. Cancellation restores stock when the order still holds it.
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/OrderNumber"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Fulfillment"
+      responses:
+        "200":
+          description: The updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRule"
+  /api/admin/shop/orders/{orderNumber}/payment:
+    post:
+      tags: [Admin]
+      operationId: recordPaymentResult
+      summary: Record success or failure of the pending payment
+      description: |
+        The order must be `pending_payment`. Success after the payment window is rejected.
+        Failure restores stock and sets `payment_failed`.
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/OrderNumber"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentResult"
+      responses:
+        "200":
+          description: The updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderEnvelope"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRule"
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+      description: |
+        Better Auth session cookie sent by the browser. In production the cookie name is
+        `__Secure-better-auth.session_token`. Admin routes also require role `admin`.
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Slug:
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    VariantId:
+      name: variantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    AddressId:
+      name: addressId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    OrderNumber:
+      name: orderNumber
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        example: OY-10000
+    ColorId:
+      name: colorId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SizeId:
+      name: sizeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ImageId:
+      name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ShippingMethodId:
+      name: shippingMethodId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    ValidationError:
+      description: The request body or query failed validation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Unauthenticated:
+      description: No session cookie
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Forbidden:
+      description: The account is not an administrator
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    NotFound:
+      description: The record does not exist for this caller
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Conflict:
+      description: A unique value already exists, or a variant on an order cannot be deleted
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    BusinessRule:
+      description: The cart, stock, payment window, or status transition rejected the change
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+  schemas:
+    ProductType:
+      type: string
+      enum: [tshirt, hoodie]
+    OrderStatus:
+      type: string
+      enum:
+        - pending_payment
+        - paid
+        - processing
+        - shipped
+        - delivered
+        - cancelled
+        - payment_failed
+    PaymentStatus:
+      type: string
+      enum: [pending, succeeded, failed]
+    ErrorEnvelope:
+      type: object
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - VALIDATION_ERROR
+                - UNAUTHENTICATED
+                - FORBIDDEN
+                - NOT_FOUND
+                - CONFLICT
+                - BUSINESS_RULE
+                - RATE_LIMITED
+                - SERVICE_UNAVAILABLE
+                - INTERNAL_ERROR
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                required: [field, message]
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+    EmbeddedColor:
+      type: object
+      required: [id, nameFa, nameEn, hex]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nameFa:
+          type: string
+        nameEn:
+          type: string
+        hex:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+    EmbeddedSize:
+      type: object
+      required: [id, code, labelFa, labelEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        labelFa:
+          type: string
+        labelEn:
+          type: string
+    ProductImage:
+      type: object
+      required: [id, url, altFa, altEn, sortOrder, colorId]
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+        altFa:
+          type: string
+        altEn:
+          type: string
+        sortOrder:
+          type: integer
+        colorId:
+          type: string
+          format: uuid
+          nullable: true
+    PublicVariant:
+      type: object
+      required: [id, sku, stockQuantity, priceToman, color, size]
+      properties:
+        id:
+          type: string
+          format: uuid
+        sku:
+          type: string
+        stockQuantity:
+          type: integer
+          minimum: 0
+        priceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        color:
+          $ref: "#/components/schemas/EmbeddedColor"
+        size:
+          $ref: "#/components/schemas/EmbeddedSize"
+    Product:
+      type: object
+      required:
+        - id
+        - type
+        - slug
+        - titleFa
+        - titleEn
+        - descriptionFa
+        - descriptionEn
+        - priceToman
+        - compareAtPriceToman
+        - images
+        - variants
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/ProductType"
+        slug:
+          type: string
+        titleFa:
+          type: string
+        titleEn:
+          type: string
+        descriptionFa:
+          type: string
+        descriptionEn:
+          type: string
+        priceToman:
+          type: integer
+          minimum: 0
+        compareAtPriceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductImage"
+        variants:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicVariant"
+    ProductEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/Product"
+    ProductPage:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [items, page, pageSize, total]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Product"
+            page:
+              type: integer
+            pageSize:
+              type: integer
+            total:
+              type: integer
+    AdminProduct:
+      type: object
+      required:
+        - id
+        - type
+        - slug
+        - titleFa
+        - titleEn
+        - descriptionFa
+        - descriptionEn
+        - priceToman
+        - compareAtPriceToman
+        - isPublished
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/ProductType"
+        slug:
+          type: string
+        titleFa:
+          type: string
+        titleEn:
+          type: string
+        descriptionFa:
+          type: string
+        descriptionEn:
+          type: string
+        priceToman:
+          type: integer
+          minimum: 0
+        compareAtPriceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        isPublished:
+          type: boolean
+    AdminProductEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/AdminProduct"
+    ProductWrite:
+      type: object
+      required: [type, slug, titleFa, titleEn, priceToman]
+      properties:
+        type:
+          $ref: "#/components/schemas/ProductType"
+        slug:
+          type: string
+          minLength: 1
+        titleFa:
+          type: string
+          minLength: 1
+        titleEn:
+          type: string
+          minLength: 1
+        descriptionFa:
+          type: string
+        descriptionEn:
+          type: string
+        priceToman:
+          type: integer
+          minimum: 0
+        compareAtPriceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        isPublished:
+          type: boolean
+    ProductUpdate:
+      type: object
+      description: Any subset of the create fields. A compare-at price must stay higher than the selling price.
+      properties:
+        type:
+          $ref: "#/components/schemas/ProductType"
+        slug:
+          type: string
+          minLength: 1
+        titleFa:
+          type: string
+          minLength: 1
+        titleEn:
+          type: string
+          minLength: 1
+        descriptionFa:
+          type: string
+        descriptionEn:
+          type: string
+        priceToman:
+          type: integer
+          minimum: 0
+        compareAtPriceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        isPublished:
+          type: boolean
+    Color:
+      type: object
+      required: [id, nameFa, nameEn, hex, sortOrder]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nameFa:
+          type: string
+        nameEn:
+          type: string
+        hex:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        sortOrder:
+          type: integer
+    ColorEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/Color"
+    ColorWrite:
+      type: object
+      required: [nameFa, nameEn, hex]
+      properties:
+        nameFa:
+          type: string
+          minLength: 1
+        nameEn:
+          type: string
+          minLength: 1
+        hex:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        sortOrder:
+          type: integer
+    ColorUpdate:
+      type: object
+      properties:
+        nameFa:
+          type: string
+          minLength: 1
+        nameEn:
+          type: string
+          minLength: 1
+        hex:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        sortOrder:
+          type: integer
+    Size:
+      type: object
+      required: [id, code, labelFa, labelEn, sortOrder]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        labelFa:
+          type: string
+        labelEn:
+          type: string
+        sortOrder:
+          type: integer
+    SizeEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/Size"
+    SizeWrite:
+      type: object
+      required: [code, labelFa, labelEn]
+      properties:
+        code:
+          type: string
+          minLength: 1
+        labelFa:
+          type: string
+          minLength: 1
+        labelEn:
+          type: string
+          minLength: 1
+        sortOrder:
+          type: integer
+    SizeUpdate:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+        labelFa:
+          type: string
+          minLength: 1
+        labelEn:
+          type: string
+          minLength: 1
+        sortOrder:
+          type: integer
+    ProductImageWrite:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          minLength: 1
+        altFa:
+          type: string
+        altEn:
+          type: string
+        sortOrder:
+          type: integer
+        colorId:
+          type: string
+          format: uuid
+          nullable: true
+    ProductImageUpdate:
+      type: object
+      properties:
+        url:
+          type: string
+          minLength: 1
+        altFa:
+          type: string
+        altEn:
+          type: string
+        sortOrder:
+          type: integer
+        colorId:
+          type: string
+          format: uuid
+          nullable: true
+    ProductImageEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/ProductImage"
+    AdminVariant:
+      type: object
+      required: [id, productId, colorId, sizeId, sku, stockQuantity, priceToman, isActive]
+      properties:
+        id:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        colorId:
+          type: string
+          format: uuid
+        sizeId:
+          type: string
+          format: uuid
+        sku:
+          type: string
+        stockQuantity:
+          type: integer
+          minimum: 0
+        priceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        isActive:
+          type: boolean
+    AdminVariantEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/AdminVariant"
+    VariantWrite:
+      type: object
+      required: [colorId, sizeId, sku, stockQuantity]
+      properties:
+        colorId:
+          type: string
+          format: uuid
+        sizeId:
+          type: string
+          format: uuid
+        sku:
+          type: string
+          minLength: 1
+        stockQuantity:
+          type: integer
+          minimum: 0
+        priceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        isActive:
+          type: boolean
+    VariantUpdate:
+      type: object
+      properties:
+        colorId:
+          type: string
+          format: uuid
+        sizeId:
+          type: string
+          format: uuid
+        sku:
+          type: string
+          minLength: 1
+        stockQuantity:
+          type: integer
+          minimum: 0
+        priceToman:
+          type: integer
+          minimum: 0
+          nullable: true
+        isActive:
+          type: boolean
+    ShippingMethod:
+      type: object
+      required: [id, nameFa, nameEn, priceToman, estimatedDaysMin, estimatedDaysMax, sortOrder]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nameFa:
+          type: string
+        nameEn:
+          type: string
+        priceToman:
+          type: integer
+          minimum: 0
+        estimatedDaysMin:
+          type: integer
+          minimum: 0
+        estimatedDaysMax:
+          type: integer
+          minimum: 0
+        sortOrder:
+          type: integer
+    ShippingMethodListEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ShippingMethod"
+    AdminShippingMethod:
+      allOf:
+        - $ref: "#/components/schemas/ShippingMethod"
+        - type: object
+          required: [isActive]
+          properties:
+            isActive:
+              type: boolean
+    AdminShippingMethodEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/AdminShippingMethod"
+    ShippingMethodWrite:
+      type: object
+      required: [nameFa, nameEn, priceToman, estimatedDaysMin, estimatedDaysMax]
+      properties:
+        nameFa:
+          type: string
+          minLength: 1
+        nameEn:
+          type: string
+          minLength: 1
+        priceToman:
+          type: integer
+          minimum: 0
+        estimatedDaysMin:
+          type: integer
+          minimum: 0
+        estimatedDaysMax:
+          type: integer
+          minimum: 0
+        isActive:
+          type: boolean
+        sortOrder:
+          type: integer
+    ShippingMethodUpdate:
+      type: object
+      properties:
+        nameFa:
+          type: string
+          minLength: 1
+        nameEn:
+          type: string
+          minLength: 1
+        priceToman:
+          type: integer
+          minimum: 0
+        estimatedDaysMin:
+          type: integer
+          minimum: 0
+        estimatedDaysMax:
+          type: integer
+          minimum: 0
+        isActive:
+          type: boolean
+        sortOrder:
+          type: integer
+    CartLine:
+      type: object
+      required:
+        - variantId
+        - quantity
+        - unitPriceToman
+        - lineTotalToman
+        - stockQuantity
+        - sku
+        - productSlug
+        - productTitleFa
+        - productTitleEn
+        - productType
+        - colorNameFa
+        - colorNameEn
+        - colorHex
+        - sizeCode
+        - sizeLabelFa
+        - sizeLabelEn
+      properties:
+        variantId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+        unitPriceToman:
+          type: integer
+          minimum: 0
+        lineTotalToman:
+          type: integer
+          minimum: 0
+        stockQuantity:
+          type: integer
+          minimum: 0
+        sku:
+          type: string
+        productSlug:
+          type: string
+        productTitleFa:
+          type: string
+        productTitleEn:
+          type: string
+        productType:
+          $ref: "#/components/schemas/ProductType"
+        colorNameFa:
+          type: string
+        colorNameEn:
+          type: string
+        colorHex:
+          type: string
+        sizeCode:
+          type: string
+        sizeLabelFa:
+          type: string
+        sizeLabelEn:
+          type: string
+    CartEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/CartLine"
+    CartItemWrite:
+      type: object
+      required: [variantId, quantity]
+      properties:
+        variantId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 0
+          description: Units to add. Zero removes the line.
+    Address:
+      type: object
+      required: [id, receiverName, mobile, province, city, postalCode, addressLine, isDefault]
+      properties:
+        id:
+          type: string
+          format: uuid
+        receiverName:
+          type: string
+        mobile:
+          type: string
+          pattern: "^09[0-9]{9}$"
+        province:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+          pattern: "^[0-9]{10}$"
+        addressLine:
+          type: string
+        isDefault:
+          type: boolean
+    AddressEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/Address"
+    AddressListEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Address"
+    AddressWrite:
+      type: object
+      required: [receiverName, mobile, province, city, postalCode, addressLine]
+      properties:
+        receiverName:
+          type: string
+          minLength: 1
+        mobile:
+          type: string
+          pattern: "^09[0-9]{9}$"
+        province:
+          type: string
+          minLength: 1
+        city:
+          type: string
+          minLength: 1
+        postalCode:
+          type: string
+          pattern: "^[0-9]{10}$"
+        addressLine:
+          type: string
+          minLength: 1
+        isDefault:
+          type: boolean
+    AddressUpdate:
+      type: object
+      properties:
+        receiverName:
+          type: string
+          minLength: 1
+        mobile:
+          type: string
+          pattern: "^09[0-9]{9}$"
+        province:
+          type: string
+          minLength: 1
+        city:
+          type: string
+          minLength: 1
+        postalCode:
+          type: string
+          pattern: "^[0-9]{10}$"
+        addressLine:
+          type: string
+          minLength: 1
+        isDefault:
+          type: boolean
+    DeletedIdEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+              format: uuid
+    OrderItem:
+      type: object
+      required:
+        - id
+        - variantId
+        - productTitleFa
+        - productTitleEn
+        - productType
+        - colorNameFa
+        - colorNameEn
+        - colorHex
+        - sizeCode
+        - sku
+        - unitPriceToman
+        - quantity
+        - lineTotalToman
+      properties:
+        id:
+          type: string
+          format: uuid
+        variantId:
+          type: string
+          format: uuid
+        productTitleFa:
+          type: string
+        productTitleEn:
+          type: string
+        productType:
+          $ref: "#/components/schemas/ProductType"
+        colorNameFa:
+          type: string
+        colorNameEn:
+          type: string
+        colorHex:
+          type: string
+        sizeCode:
+          type: string
+        sku:
+          type: string
+        unitPriceToman:
+          type: integer
+          minimum: 0
+        quantity:
+          type: integer
+          minimum: 1
+        lineTotalToman:
+          type: integer
+          minimum: 0
+    Payment:
+      type: object
+      required: [id, status, amountToman, provider, paidAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
+        amountToman:
+          type: integer
+          minimum: 0
+        provider:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+    Order:
+      type: object
+      required:
+        - orderNumber
+        - status
+        - subtotalToman
+        - shippingToman
+        - discountToman
+        - totalToman
+        - shippingNameFa
+        - shippingNameEn
+        - receiverName
+        - mobile
+        - province
+        - city
+        - postalCode
+        - addressLine
+        - paymentExpiresAt
+        - trackingCode
+        - paidAt
+        - shippedAt
+        - deliveredAt
+        - cancelledAt
+        - createdAt
+        - items
+        - payments
+      properties:
+        orderNumber:
+          type: string
+          example: OY-10000
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        subtotalToman:
+          type: integer
+          minimum: 0
+        shippingToman:
+          type: integer
+          minimum: 0
+        discountToman:
+          type: integer
+          minimum: 0
+        totalToman:
+          type: integer
+          minimum: 0
+        shippingNameFa:
+          type: string
+        shippingNameEn:
+          type: string
+        receiverName:
+          type: string
+        mobile:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        addressLine:
+          type: string
+        paymentExpiresAt:
+          type: string
+          format: date-time
+        trackingCode:
+          type: string
+          nullable: true
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        shippedAt:
+          type: string
+          format: date-time
+          nullable: true
+        deliveredAt:
+          type: string
+          format: date-time
+          nullable: true
+        cancelledAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        payments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+    OrderEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: "#/components/schemas/Order"
+    OrderPage:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [items, page, pageSize, total]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Order"
+            page:
+              type: integer
+            pageSize:
+              type: integer
+            total:
+              type: integer
+    PlaceOrder:
+      type: object
+      required: [addressId, shippingMethodId]
+      properties:
+        addressId:
+          type: string
+          format: uuid
+        shippingMethodId:
+          type: string
+          format: uuid
+    Fulfillment:
+      oneOf:
+        - type: object
+          required: [status]
+          properties:
+            status:
+              type: string
+              enum: [processing]
+        - type: object
+          required: [status, trackingCode]
+          properties:
+            status:
+              type: string
+              enum: [shipped]
+            trackingCode:
+              type: string
+              minLength: 1
+        - type: object
+          required: [status]
+          properties:
+            status:
+              type: string
+              enum: [delivered]
+        - type: object
+          required: [status]
+          properties:
+            status:
+              type: string
+              enum: [cancelled]
+    PaymentResult:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [succeeded, failed]

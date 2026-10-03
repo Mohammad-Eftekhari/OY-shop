@@ -59,6 +59,10 @@ A service that loads many records returns:
 
 List query strings are parsed with `listQuerySchema` in `src/lib/api/pagination.ts`: `page` defaults to 1 and must be at least 1, `pageSize` defaults to 20 and must be from 1 to 100. `toLimitOffset` turns that into `limit` and `offset` for the repository. The repository is the only place that calls Drizzle.
 
+## Shop reference
+
+The shop routes are described in [openapi.yaml](./openapi.yaml) (OpenAPI 3.0.3). With the app running, open `/api-docs` for the Swagger UI. The raw document is also served at `GET /api/openapi`. Swagger UI is the viewer. The OpenAPI file is the contract.
+
 ## Endpoints in this starter
 
 | Method        | Path                | Access                      |

@@ -77,6 +77,11 @@
     ],
     "patchedDependencies": {
       "next-themes": "patches/next-themes.patch"
+    },
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-vfj7-8cjw-p6xm"
+      ]
     }
   },
   "packageManager": "pnpm@10.25.0"

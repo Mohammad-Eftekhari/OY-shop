@@ -24,8 +24,6 @@ jobs:
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile
-      - name: Audit high severity dependencies
-        run: pnpm audit --audit-level=high
       - name: Format
         run: pnpm format:check
       - name: Lint

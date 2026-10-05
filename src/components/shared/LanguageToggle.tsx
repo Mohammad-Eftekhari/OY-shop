@@ -9,9 +9,10 @@ import { ELocale, LOCALE_COOKIE, type TLocale } from "@/lib/locale";
 type TLanguageToggleProps = {
   copy: TDictionary;
   locale: TLocale;
+  className?: string;
 };
 
-export function LanguageToggle({ copy, locale }: TLanguageToggleProps) {
+export function LanguageToggle({ copy, locale, className }: TLanguageToggleProps) {
   const router = useRouter();
   const nextLocale = locale === ELocale.fa ? ELocale.en : ELocale.fa;
 
@@ -24,8 +25,9 @@ export function LanguageToggle({ copy, locale }: TLanguageToggleProps) {
   return (
     <Button
       type="button"
-      variant="outline"
+      variant="ghost"
       size="sm"
+      className={className}
       aria-label={
         nextLocale === ELocale.fa ? copy.language.switchToPersian : copy.language.switchToEnglish
       }

@@ -8,5 +8,6 @@ type TAuthLayoutProps = {
 
 export default async function AuthLayout({ children }: TAuthLayoutProps) {
   await requireAnonymous();
-  return children;
+
+  return <div className="mx-auto w-full max-w-md px-6 py-16">{children}</div>;
 }

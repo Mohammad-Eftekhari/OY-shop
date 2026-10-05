@@ -7,16 +7,18 @@ import { Button } from "@/components/ui/button";
 
 type TThemeToggleProps = {
   label: string;
+  className?: string;
 };
 
-export function ThemeToggle({ label }: TThemeToggleProps) {
+export function ThemeToggle({ label, className }: TThemeToggleProps) {
   const { setTheme } = useTheme();
 
   return (
     <Button
       type="button"
-      variant="outline"
+      variant="ghost"
       size="icon"
+      className={className}
       aria-label={label}
       onClick={() => {
         const isDark = document.documentElement.classList.contains("dark");

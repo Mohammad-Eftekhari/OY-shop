@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { AppProviders } from "@/components/shared/AppProviders";
+import { SiteFooter } from "@/components/shared/SiteFooter";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { getLocale } from "@/lib/get-locale";
 import { directionForLocale } from "@/lib/locale";
@@ -44,6 +45,7 @@ type TRootLayoutProps = {
 
 export default async function RootLayout({ children }: TRootLayoutProps) {
   const locale = await getLocale();
+  const copy = getDictionary(locale);
 
   return (
     <html
@@ -56,9 +58,8 @@ export default async function RootLayout({ children }: TRootLayoutProps) {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <AppProviders>
           <SiteHeader />
-          <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-8">
-            {children}
-          </main>
+          <main className="flex w-full flex-1 flex-col">{children}</main>
+          <SiteFooter copy={copy} />
         </AppProviders>
       </body>
     </html>

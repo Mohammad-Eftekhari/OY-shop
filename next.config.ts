@@ -25,6 +25,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   allowedDevOrigins: ["127.0.0.1"],
+  outputFileTracingIncludes: {
+    "/api/openapi": ["./docs/openapi.yaml"],
+  },
   async headers() {
     return [
       {

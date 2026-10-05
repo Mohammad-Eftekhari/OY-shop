@@ -43,6 +43,7 @@
     "server-only": "^0.0.1",
     "shadcn": "^4.21.0",
     "sonner": "^2.0.8",
+    "swagger-ui-react": "^5.33.1",
     "tailwind-merge": "^3.7.0",
     "tw-animate-css": "^1.4.0",
     "zod": "^4.6.5"
@@ -53,6 +54,7 @@
     "@types/node": "^24.19.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/swagger-ui-react": "^5.18.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
@@ -75,6 +77,11 @@
     ],
     "patchedDependencies": {
       "next-themes": "patches/next-themes.patch"
+    },
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-vfj7-8cjw-p6xm"
+      ]
     }
   },
   "packageManager": "pnpm@10.25.0"

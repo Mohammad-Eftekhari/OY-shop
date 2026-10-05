@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function ApiDocsPage() {
   return (
-    <div className="px-6 py-8">
+    <div className="px-6 py-8" style={{ direction: "ltr" }}>
       <ApiDocs />
     </div>
   );

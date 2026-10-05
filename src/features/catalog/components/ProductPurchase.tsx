@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { EApiRoutes, EAppRoutes, productPath } from "@/constants/routes";
-import { ProductPhoto } from "@/features/catalog/components/ProductPhoto";
+import { ProductGallery } from "@/features/catalog/components/ProductGallery";
 import {
   productDescription,
   productTitle,
@@ -98,26 +98,15 @@ export const ProductPurchase = ({ product, copy, locale }: TProductPurchaseProps
 
   return (
     <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,32rem)]">
-      <div className="order-1 flex flex-col gap-3 lg:order-2">
-        <ProductPhoto
-          url={images[0]?.url}
-          alt={title}
+      <div className="order-1 lg:order-2">
+        <ProductGallery
+          key={colorId || "all"}
+          images={images}
+          title={title}
           color={color?.hex ?? "#171614"}
-          className="aspect-[4/5] w-full object-cover"
+          copy={copy}
+          locale={locale}
         />
-        {images.length > 1 ? (
-          <div className="flex justify-end gap-3">
-            {images.slice(0, 4).map((image) => (
-              <ProductPhoto
-                key={image.id}
-                url={image.url}
-                alt={title}
-                color={color?.hex ?? "#e7e0d4"}
-                className="size-20 object-cover"
-              />
-            ))}
-          </div>
-        ) : null}
       </div>
       <div className="order-2 flex flex-col items-end gap-5 text-end lg:order-1">
         <p className="text-sm text-muted-foreground">{typeLabel}</p>

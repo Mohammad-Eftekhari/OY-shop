@@ -33,7 +33,7 @@ export function LanguageToggle({ copy, locale, className }: TLanguageToggleProps
       }
       onClick={switchLocale}
     >
-      {nextLocale === ELocale.fa ? copy.language.persianShort : copy.language.englishShort}
+      {locale === ELocale.fa ? copy.language.persian : copy.language.english}
     </Button>
   );
 }

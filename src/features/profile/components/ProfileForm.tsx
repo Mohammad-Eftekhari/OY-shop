@@ -47,59 +47,76 @@ export function ProfileForm({ copy, initialProfile }: TProfileFormProps) {
   const isSaving = form.formState.isSubmitting || mutation.isPending;
 
   return (
-    <form
-      onSubmit={form.handleSubmit((values) =>
-        mutation.mutate(values, {
-          onSuccess: (profile) => {
-            form.reset({ displayName: profile.displayName, bio: profile.bio });
-            toast.success(copy.profile.saved);
-          },
-          onError: (error) => {
-            const message =
-              error instanceof ApiClientError ? error.message : copy.profile.saveError;
-            form.setError("root", { message });
-          },
-        }),
-      )}
-      noValidate
-    >
-      <FieldGroup>
-        <Controller
-          name="displayName"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="profile-display-name">{copy.profile.displayName}</FieldLabel>
-              <Input
-                {...field}
-                id="profile-display-name"
-                autoComplete="nickname"
-                aria-invalid={fieldState.invalid}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-        <Controller
-          name="bio"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="profile-bio">{copy.profile.biography}</FieldLabel>
-              <Textarea {...field} id="profile-bio" aria-invalid={fieldState.invalid} />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-        {rootError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {rootError}
-          </p>
-        ) : null}
-        <Button type="submit" disabled={isSaving}>
-          {isSaving ? copy.profile.saving : copy.profile.save}
-        </Button>
-      </FieldGroup>
-    </form>
+    <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs sm:p-8">
+      <form
+        onSubmit={form.handleSubmit((values) =>
+          mutation.mutate(values, {
+            onSuccess: (profile) => {
+              form.reset({ displayName: profile.displayName, bio: profile.bio });
+              toast.success(copy.profile.saved);
+            },
+            onError: (error) => {
+              const message =
+                error instanceof ApiClientError ? error.message : copy.profile.saveError;
+              form.setError("root", { message });
+            },
+          }),
+        )}
+        noValidate
+        className="text-start"
+      >
+        <FieldGroup className="gap-5">
+          <Controller
+            name="displayName"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="profile-display-name" className="text-xs font-medium">
+                  {copy.profile.displayName}
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="profile-display-name"
+                  autoComplete="nickname"
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+          <Controller
+            name="bio"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="profile-bio" className="text-xs font-medium">
+                  {copy.profile.biography}
+                </FieldLabel>
+                <Textarea {...field} id="profile-bio" aria-invalid={fieldState.invalid} />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+          {rootError ? (
+            <div
+              role="alert"
+              className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive"
+            >
+              {rootError}
+            </div>
+          ) : null}
+          <div className="pt-2">
+            <Button
+              type="submit"
+              size="lg"
+              className="rounded-full font-medium"
+              disabled={isSaving}
+            >
+              {isSaving ? copy.profile.saving : copy.profile.save}
+            </Button>
+          </div>
+        </FieldGroup>
+      </form>
+    </div>
   );
 }

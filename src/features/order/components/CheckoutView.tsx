@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, CreditCard, MapPin, Truck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -48,18 +49,30 @@ export const CheckoutView = ({ copy, locale }: TCheckoutViewProps) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   if (cart.isPending || addresses.isPending || shipping.isPending) {
-    return <Skeleton className="h-64 w-full" />;
+    return (
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+        </div>
+        <Skeleton className="h-64 w-full rounded-2xl" />
+      </div>
+    );
   }
 
   if (cart.isError || addresses.isError || shipping.isError) {
-    return <p className="text-end">{copy.shop.loadError}</p>;
+    return (
+      <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-start">
+        <p className="text-sm text-destructive">{copy.shop.loadError}</p>
+      </div>
+    );
   }
 
   if (cart.data.items.length === 0) {
     return (
-      <div className="flex flex-col items-end gap-4 text-end">
-        <h1 className="text-4xl font-medium">{copy.shop.cartEmpty}</h1>
-        <Button asChild variant="outline">
+      <div className="flex flex-col items-start gap-4 text-start">
+        <h1 className="text-3xl md:text-4xl">{copy.shop.cartEmpty}</h1>
+        <Button asChild variant="outline" className="rounded-full">
           <Link href={EAppRoutes.products}>{copy.shop.backToShop}</Link>
         </Button>
       </div>
@@ -90,112 +103,198 @@ export const CheckoutView = ({ copy, locale }: TCheckoutViewProps) => {
   }
 
   return (
-    <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <aside className="flex flex-col gap-3 lg:col-start-2 lg:row-start-1">
-        <h2 className="text-lg font-medium">{copy.shop.summary}</h2>
-        {cart.data.items.map((item) => (
-          <p key={item.variantId} className="text-sm text-muted-foreground">
-            {pickLocaleText(locale, item.productTitleFa, item.productTitleEn)} · {item.sizeCode}
+    <div className="animate-fade-in grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-14">
+      {/* Checkout Sidebar Summary */}
+      <aside className="flex flex-col gap-4 rounded-2xl border border-border/80 bg-card p-6 shadow-xs lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1">
+        <h2 className="text-start text-base font-semibold tracking-tight">{copy.shop.summary}</h2>
+
+        <div className="flex flex-col gap-2 border-b border-border/60 pb-3 text-xs">
+          {cart.data.items.map((item) => (
+            <div key={item.variantId} className="flex justify-between text-muted-foreground">
+              <span>
+                {pickLocaleText(locale, item.productTitleFa, item.productTitleEn)} ({item.sizeCode})
+              </span>
+              <span>{formatToman(item.lineTotalToman, locale)}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-2 border-b border-border/60 pb-3 text-sm">
+          <p className="flex justify-between">
+            <span className="text-muted-foreground">{copy.shop.subtotal}</span>
+            <span>{formatToman(subtotal, locale)}</span>
           </p>
-        ))}
-        <p className="flex justify-between text-sm">
-          <span className="text-muted-foreground">{copy.shop.subtotal}</span>
-          <span>{formatToman(subtotal, locale)}</span>
-        </p>
-        <p className="flex justify-between text-sm">
-          <span className="text-muted-foreground">{copy.shop.shipping}</span>
-          <span>{formatToman(shippingToman, locale)}</span>
-        </p>
-        <p className="flex justify-between text-sm">
-          <span className="text-muted-foreground">{copy.shop.discount}</span>
-          <span>{formatToman(0, locale)}</span>
-        </p>
-        <p className="text-2xl font-medium">{formatToman(total, locale)}</p>
+          <p className="flex justify-between">
+            <span className="text-muted-foreground">{copy.shop.shipping}</span>
+            <span>{formatToman(shippingToman, locale)}</span>
+          </p>
+          <p className="flex justify-between">
+            <span className="text-muted-foreground">{copy.shop.discount}</span>
+            <span>{formatToman(0, locale)}</span>
+          </p>
+        </div>
+
+        <div className="flex items-baseline justify-between pt-1">
+          <span className="text-sm font-semibold">{copy.shop.total}</span>
+          <span className="text-2xl font-medium tracking-tight">{formatToman(total, locale)}</span>
+        </div>
+
         <Button
           type="button"
-          className="h-12 rounded-sm"
+          size="lg"
+          className="w-full gap-2 rounded-full font-medium"
           disabled={!selectedAddress || !selectedShipping || placeOrder.isPending}
           onClick={() => void pay()}
         >
-          {placeOrder.isPending ? copy.shop.paying : copy.shop.payOnline}
+          <CreditCard className="size-4" />
+          <span>{placeOrder.isPending ? copy.shop.paying : copy.shop.payOnline}</span>
         </Button>
-        <p className="text-sm text-muted-foreground">{copy.shop.noCash}</p>
+
+        <p className="text-start text-xs text-muted-foreground leading-relaxed">
+          {copy.shop.noCash}
+        </p>
+
         {placeOrder.isError ? (
-          <p className="text-sm text-destructive">{copy.shop.couldNotPlace}</p>
+          <p className="text-start text-xs text-destructive">{copy.shop.couldNotPlace}</p>
         ) : null}
       </aside>
-      <div className="flex flex-col items-end gap-6 text-end lg:col-start-1 lg:row-start-1">
-        <h1 className="text-4xl font-medium">{copy.shop.checkoutTitle}</h1>
-        <h2 className="text-lg font-medium">{copy.shop.addressTitle}</h2>
-        {addresses.data.items.length === 0 ? (
-          <p className="text-muted-foreground">{copy.shop.noAddress}</p>
-        ) : null}
-        <div className="flex w-full flex-col gap-3">
-          {addresses.data.items.map((address) => {
-            const isSelected = address.id === selectedAddress?.id;
-            return (
-              <button
-                key={address.id}
-                type="button"
-                className={`border p-4 text-end ${isSelected ? "border-foreground" : "border-border"}`}
-                onClick={() => setAddressId(address.id)}
-              >
-                <span className="block text-lg font-medium">{address.receiverName}</span>
-                <span className="block">{address.mobile}</span>
-                <span className="block text-muted-foreground">
-                  {address.city}، {address.addressLine}
-                </span>
-                <span className="block text-sm">
-                  {address.postalCode}
-                  {address.isDefault ? ` · ${copy.shop.defaultAddress}` : ""}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          className="rounded-sm"
-          onClick={() => setIsFormOpen((open) => !open)}
-        >
-          {copy.shop.newAddress}
-        </Button>
-        {isFormOpen ? (
-          <AddressForm
-            copy={copy}
-            onSaved={(address) => {
-              setAddressId(address.id);
-              setIsFormOpen(false);
-            }}
-          />
-        ) : null}
-        <h2 className="text-lg font-medium">{copy.shop.shippingTitle}</h2>
-        {shipping.data.items.length === 0 ? <p>{copy.shop.noShipping}</p> : null}
-        <div className="flex w-full flex-col gap-3">
-          {shipping.data.items.map((method) => {
-            const isSelected = method.id === selectedShipping?.id;
-            const days = copy.shop.daysRange
-              .replace("{min}", formatNumber(method.estimatedDaysMin, locale))
-              .replace("{max}", formatNumber(method.estimatedDaysMax, locale));
 
-            return (
-              <button
-                key={method.id}
-                type="button"
-                className={`flex items-center justify-between border p-4 ${isSelected ? "border-foreground" : "border-border"}`}
-                onClick={() => setShippingMethodId(method.id)}
-              >
-                <span className="font-medium">
-                  {pickLocaleText(locale, method.nameFa, method.nameEn)}
-                </span>
-                <span>
-                  {days} · {formatToman(method.priceToman, locale)}
-                </span>
-              </button>
-            );
-          })}
+      {/* Main Checkout Steps */}
+      <div className="flex flex-col items-start gap-8 text-start lg:col-start-1 lg:row-start-1">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            Order
+          </span>
+          <h1 className="text-3xl font-normal tracking-tight md:text-4xl">
+            {copy.shop.checkoutTitle}
+          </h1>
         </div>
+
+        {/* Step 1: Address */}
+        <section className="flex w-full flex-col gap-4">
+          <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+            <MapPin className="size-4 text-muted-foreground" />
+            <h2 className="text-base font-semibold">{copy.shop.addressTitle}</h2>
+          </div>
+
+          {addresses.data.items.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{copy.shop.noAddress}</p>
+          ) : null}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {addresses.data.items.map((address) => {
+              const isSelected = address.id === selectedAddress?.id;
+              return (
+                <button
+                  key={address.id}
+                  type="button"
+                  className={`flex flex-col items-start gap-1.5 rounded-2xl border p-4 text-start transition-all duration-150 active:scale-98 ${
+                    isSelected
+                      ? "border-foreground bg-muted/40 shadow-xs ring-1 ring-foreground"
+                      : "border-border/80 bg-card hover:border-foreground/30 hover:bg-muted/20"
+                  }`}
+                  onClick={() => setAddressId(address.id)}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span className="font-semibold text-sm">{address.receiverName}</span>
+                    {isSelected ? (
+                      <span className="flex size-5 items-center justify-center rounded-full bg-foreground text-background">
+                        <Check className="size-3" />
+                      </span>
+                    ) : null}
+                  </div>
+                  <span className="text-xs text-foreground/80">{address.mobile}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {address.province}، {address.city}، {address.addressLine}
+                  </span>
+                  <span className="mt-1 text-[11px] text-muted-foreground">
+                    {address.postalCode}
+                    {address.isDefault ? ` · ${copy.shop.defaultAddress}` : ""}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-full text-xs"
+              onClick={() => setIsFormOpen((open) => !open)}
+            >
+              {copy.shop.newAddress}
+            </Button>
+          </div>
+
+          {isFormOpen ? (
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
+              <AddressForm
+                copy={copy}
+                onSaved={(address) => {
+                  setAddressId(address.id);
+                  setIsFormOpen(false);
+                }}
+              />
+            </div>
+          ) : null}
+        </section>
+
+        {/* Step 2: Shipping */}
+        <section className="flex w-full flex-col gap-4">
+          <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+            <Truck className="size-4 text-muted-foreground" />
+            <h2 className="text-base font-semibold">{copy.shop.shippingTitle}</h2>
+          </div>
+
+          {shipping.data.items.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{copy.shop.noShipping}</p>
+          ) : null}
+
+          <div className="flex w-full flex-col gap-3">
+            {shipping.data.items.map((method) => {
+              const isSelected = method.id === selectedShipping?.id;
+              const days = copy.shop.daysRange
+                .replace("{min}", formatNumber(method.estimatedDaysMin, locale))
+                .replace("{max}", formatNumber(method.estimatedDaysMax, locale));
+
+              return (
+                <button
+                  key={method.id}
+                  type="button"
+                  className={`flex items-center justify-between rounded-2xl border p-4.5 text-start transition-all duration-150 active:scale-98 ${
+                    isSelected
+                      ? "border-foreground bg-muted/40 shadow-xs ring-1 ring-foreground"
+                      : "border-border/80 bg-card hover:border-foreground/30 hover:bg-muted/20"
+                  }`}
+                  onClick={() => setShippingMethodId(method.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`flex size-4.5 items-center justify-center rounded-full border transition-colors ${
+                        isSelected ? "border-foreground bg-foreground" : "border-muted-foreground"
+                      }`}
+                    >
+                      {isSelected ? <span className="size-1.5 rounded-full bg-background" /> : null}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {pickLocaleText(locale, method.nameFa, method.nameEn)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">
+                      {days}
+                    </span>
+                    <span className="font-semibold text-sm">
+                      {formatToman(method.priceToman, locale)}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -21,15 +21,21 @@ export default async function SignInPage({ searchParams }: TSignInPageProps) {
   const nextPath = typeof params.next === "string" ? params.next : null;
 
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl">{copy.signIn.title}</h1>
-        <p className="text-sm text-muted-foreground">{copy.signIn.description}</p>
+    <section className="flex flex-col gap-6 text-start">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          Account
+        </span>
+        <h1 className="text-2xl font-normal tracking-tight md:text-3xl">{copy.signIn.title}</h1>
+        <p className="text-xs text-muted-foreground">{copy.signIn.description}</p>
       </div>
       <SignInForm key={locale} copy={copy} nextPath={nextPath} />
-      <p className="text-sm text-muted-foreground">
+      <p className="text-center text-xs text-muted-foreground">
         {copy.signIn.prompt}{" "}
-        <Link href={EAppRoutes.signUp} className="text-foreground underline underline-offset-4">
+        <Link
+          href={EAppRoutes.signUp}
+          className="font-medium text-foreground underline underline-offset-4 transition-opacity hover:opacity-75"
+        >
           {copy.signIn.alternate}
         </Link>
       </p>

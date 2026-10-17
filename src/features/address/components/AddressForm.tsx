@@ -59,42 +59,61 @@ export const AddressForm = ({ copy, onSaved }: TAddressFormProps) => {
 
   return (
     <form
-      className="flex max-w-lg flex-col gap-4"
+      className="flex max-w-lg flex-col gap-4 text-start"
       onSubmit={form.handleSubmit(onSubmit)}
       noValidate
     >
-      {fields.map(([name, label]) => (
-        <Controller
-          key={name}
-          name={name}
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={`address-${name}`}>{label}</FieldLabel>
-              <Input {...field} id={`address-${name}`} aria-invalid={fieldState.invalid} />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-      ))}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {fields.map(([name, label]) => (
+          <div key={name} className={name === "addressLine" ? "sm:col-span-2" : ""}>
+            <Controller
+              name={name}
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={`address-${name}`} className="text-xs font-medium">
+                    {label}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id={`address-${name}`}
+                    aria-invalid={fieldState.invalid}
+                    className="h-10 text-xs"
+                  />
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
+          </div>
+        ))}
+      </div>
+
       <Controller
         name="isDefault"
         control={form.control}
         render={({ field }) => (
-          <label className="flex items-center justify-end gap-2 text-sm">
-            <span>{copy.shop.defaultAddress}</span>
+          <label className="flex items-center gap-2 text-xs font-medium cursor-pointer py-1">
             <input
               type="checkbox"
               checked={field.value}
+              className="size-4 rounded accent-foreground cursor-pointer"
               onChange={(event) => field.onChange(event.target.checked)}
             />
+            <span>{copy.shop.defaultAddress}</span>
           </label>
         )}
       />
+
       {mutation.isError ? (
-        <p className="text-sm text-destructive">{copy.shop.couldNotPlace}</p>
+        <p className="text-xs text-destructive">{copy.shop.couldNotPlace}</p>
       ) : null}
-      <Button type="submit" className="h-12 rounded-sm" disabled={mutation.isPending}>
+
+      <Button
+        type="submit"
+        size="lg"
+        className="mt-2 w-full rounded-full font-medium"
+        disabled={mutation.isPending}
+      >
         {mutation.isPending ? copy.shop.savingAddress : copy.shop.saveAddress}
       </Button>
     </form>

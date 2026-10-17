@@ -16,15 +16,21 @@ export default async function SignUpPage() {
   const copy = getDictionary(locale);
 
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl">{copy.signUp.title}</h1>
-        <p className="text-sm text-muted-foreground">{copy.signUp.description}</p>
+    <section className="flex flex-col gap-6 text-start">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          New Customer
+        </span>
+        <h1 className="text-2xl font-normal tracking-tight md:text-3xl">{copy.signUp.title}</h1>
+        <p className="text-xs text-muted-foreground">{copy.signUp.description}</p>
       </div>
       <SignUpForm key={locale} copy={copy} />
-      <p className="text-sm text-muted-foreground">
+      <p className="text-center text-xs text-muted-foreground">
         {copy.signUp.prompt}{" "}
-        <Link href={EAppRoutes.signIn} className="text-foreground underline underline-offset-4">
+        <Link
+          href={EAppRoutes.signIn}
+          className="font-medium text-foreground underline underline-offset-4 transition-opacity hover:opacity-75"
+        >
           {copy.signUp.alternate}
         </Link>
       </p>

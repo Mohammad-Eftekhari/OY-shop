@@ -51,14 +51,16 @@ export function SignInForm({ copy, nextPath }: TSignInFormProps) {
   const rootError = form.formState.errors.root?.message;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-      <FieldGroup>
+    <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="text-start">
+      <FieldGroup className="gap-4">
         <Controller
           name="email"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="sign-in-email">{copy.signIn.email}</FieldLabel>
+              <FieldLabel htmlFor="sign-in-email" className="text-xs font-medium">
+                {copy.signIn.email}
+              </FieldLabel>
               <Input
                 {...field}
                 id="sign-in-email"
@@ -75,7 +77,9 @@ export function SignInForm({ copy, nextPath }: TSignInFormProps) {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="sign-in-password">{copy.signIn.password}</FieldLabel>
+              <FieldLabel htmlFor="sign-in-password" className="text-xs font-medium">
+                {copy.signIn.password}
+              </FieldLabel>
               <Input
                 {...field}
                 id="sign-in-password"
@@ -88,11 +92,19 @@ export function SignInForm({ copy, nextPath }: TSignInFormProps) {
           )}
         />
         {rootError ? (
-          <p role="alert" className="text-sm text-destructive">
+          <div
+            role="alert"
+            className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive"
+          >
             {rootError}
-          </p>
+          </div>
         ) : null}
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          size="lg"
+          className="mt-2 w-full rounded-full font-medium"
+          disabled={form.formState.isSubmitting}
+        >
           {form.formState.isSubmitting ? copy.signIn.submitting : copy.signIn.submit}
         </Button>
       </FieldGroup>

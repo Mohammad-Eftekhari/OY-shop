@@ -10,8 +10,8 @@ export async function SiteHeader() {
   const copy = getDictionary(locale);
 
   return (
-    <Suspense fallback={<div className="h-14 bg-background" />}>
-      <SiteHeaderBar copy={copy} isSignedIn={user !== null} />
+    <Suspense fallback={<div className="h-16 bg-background/80" />}>
+      <SiteHeaderBar copy={copy} locale={locale} isSignedIn={user !== null} />
     </Suspense>
   );
 }

@@ -5,17 +5,21 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { SignOutButton } from "@/components/shared/SignOutButton";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { EAppRoutes } from "@/constants/routes";
 import { EProductType } from "@/constants/shop";
 import type { TDictionary } from "@/lib/i18n/en";
+import type { TLocale } from "@/lib/locale";
 
 type TSiteHeaderBarProps = {
   copy: TDictionary;
+  locale: TLocale;
   isSignedIn: boolean;
 };
 
-export const SiteHeaderBar = ({ copy, isSignedIn }: TSiteHeaderBarProps) => {
+export const SiteHeaderBar = ({ copy, locale, isSignedIn }: TSiteHeaderBarProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -27,6 +31,7 @@ export const SiteHeaderBar = ({ copy, isSignedIn }: TSiteHeaderBarProps) => {
   const searchId = useId();
   const searchRef = useRef<HTMLInputElement>(null);
   const type = pathname === EAppRoutes.products ? searchParams.get("type") : null;
+
   const navItems = [
     {
       href: EAppRoutes.products,
@@ -121,42 +126,60 @@ export const SiteHeaderBar = ({ copy, isSignedIn }: TSiteHeaderBarProps) => {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-background text-foreground">
-      <div className="relative flex h-14 items-center justify-between gap-6 px-4 md:px-8">
-        <Link href={EAppRoutes.home} className="flex items-center">
-          <img src="/oy-final.svg" alt={copy.siteName} className="h-7 w-auto" />
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md transition-colors duration-200">
+      <div className="relative flex h-16 items-center justify-between gap-6 px-4 md:px-8">
+        <Link
+          href={EAppRoutes.home}
+          className="flex items-center transition-transform duration-200 hover:scale-105 active:scale-95"
+          aria-label={copy.siteName}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/oy-final.svg" alt={copy.siteName} className="h-7 w-auto dark:invert" />
         </Link>
-        <span
-          className="absolute bottom-2 start-4 h-[3px] w-12 bg-foreground md:start-8"
-          aria-hidden
-        />
+
+        {/* Center Navigation - Modern Segmented Control Style */}
         <nav
           aria-label={copy.shop.products}
-          className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-7 lg:flex"
+          className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 p-1 backdrop-blur-xs lg:flex"
         >
           {navItems.map((item) => (
             <NavLink key={item.href} href={item.href} label={item.label} isActive={item.isActive} />
           ))}
         </nav>
-        <div className="flex items-center">
+
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <ThemeToggle
+            label={copy.theme.toggle}
+            className="size-9 rounded-full text-foreground/80 hover:bg-muted/80 hover:text-foreground"
+          />
+
+          <LanguageToggle
+            copy={copy}
+            locale={locale}
+            className="h-8 rounded-full px-2.5 text-xs font-medium text-foreground/80 hover:bg-muted/80 hover:text-foreground"
+          />
+
           <IconButton
             label={isSearchOpen ? copy.shop.closeSearch : copy.shop.search}
             pressed={isSearchOpen}
             onClick={toggleSearch}
           >
             {isSearchOpen ? (
-              <X strokeWidth={1.5} className="size-5" />
+              <X strokeWidth={1.75} className="size-4.5" />
             ) : (
-              <Search strokeWidth={1.5} className="size-5" />
+              <Search strokeWidth={1.75} className="size-4.5" />
             )}
           </IconButton>
+
           <Link
             href={EAppRoutes.cart}
             aria-label={copy.shop.cart}
-            className="flex size-8 items-center justify-center hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+            className="flex size-9 items-center justify-center rounded-full text-foreground/80 transition-all duration-150 hover:bg-muted/80 hover:text-foreground active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
           >
-            <ShoppingBag strokeWidth={1.5} className="size-5" />
+            <ShoppingBag strokeWidth={1.75} className="size-4.5" />
           </Link>
+
           <div className="relative">
             <IconButton
               id={`${menuId}-toggle`}
@@ -166,16 +189,17 @@ export const SiteHeaderBar = ({ copy, isSignedIn }: TSiteHeaderBarProps) => {
               onClick={toggleMenu}
             >
               {isMenuOpen ? (
-                <X strokeWidth={1.5} className="size-5" />
+                <X strokeWidth={1.75} className="size-4.5" />
               ) : (
-                <User strokeWidth={1.5} className="size-5" />
+                <User strokeWidth={1.75} className="size-4.5" />
               )}
             </IconButton>
+
             {isMenuOpen ? (
               <nav
                 id={menuId}
                 aria-label={copy.nav.account}
-                className="absolute end-0 z-50 mt-2 flex min-w-44 flex-col border border-border bg-background py-1 text-sm"
+                className="animate-scale-in absolute end-0 z-50 mt-2 flex min-w-48 flex-col gap-0.5 rounded-xl border border-border/80 bg-popover/95 p-1.5 text-sm shadow-lg backdrop-blur-md"
               >
                 <AccountLink href={EAppRoutes.cart}>{copy.shop.cart}</AccountLink>
                 {isSignedIn ? (
@@ -185,9 +209,10 @@ export const SiteHeaderBar = ({ copy, isSignedIn }: TSiteHeaderBarProps) => {
                       {copy.shop.addressesTitle}
                     </AccountLink>
                     <AccountLink href={EAppRoutes.profile}>{copy.nav.profile}</AccountLink>
+                    <div className="my-1 border-t border-border/50" />
                     <SignOutButton
                       label={copy.nav.signOut}
-                      className="h-auto w-full justify-start rounded-none px-3 py-2 text-sm font-normal"
+                      className="h-9 w-full justify-start rounded-lg px-3 text-sm font-normal text-destructive hover:bg-destructive/10"
                     />
                   </>
                 ) : (
@@ -200,33 +225,42 @@ export const SiteHeaderBar = ({ copy, isSignedIn }: TSiteHeaderBarProps) => {
             ) : null}
           </div>
         </div>
-        <span className="absolute end-4 bottom-2 h-[3px] w-8 bg-foreground md:end-8" aria-hidden />
       </div>
+
+      {/* Mobile Category Navigation */}
       <nav
         aria-label={copy.shop.products}
-        className="flex gap-5 overflow-x-auto px-4 pb-3 lg:hidden"
+        className="flex gap-2 overflow-x-auto px-4 pb-3 lg:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {navItems.map((item) => (
           <NavLink key={item.href} href={item.href} label={item.label} isActive={item.isActive} />
         ))}
       </nav>
+
+      {/* Expandable Search Input */}
       {isSearchOpen ? (
         <form
-          className="flex items-center gap-3 border-t border-border px-4 py-3 md:px-8"
+          className="animate-fade-in flex items-center gap-3 border-t border-border/60 bg-background/90 px-4 py-3 backdrop-blur-md md:px-8"
           onSubmit={submitSearch}
         >
           <label htmlFor={searchId} className="sr-only">
             {copy.shop.search}
           </label>
-          <input
-            ref={searchRef}
-            id={searchId}
-            value={query}
-            placeholder={copy.shop.searchPlaceholder}
-            className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <button type="submit" className="text-sm">
+          <div className="relative flex flex-1 items-center">
+            <Search className="absolute start-3.5 size-4 text-muted-foreground" />
+            <input
+              ref={searchRef}
+              id={searchId}
+              value={query}
+              placeholder={copy.shop.searchPlaceholder}
+              className="h-10 w-full rounded-full border border-border/80 bg-muted/50 ps-10 pe-4 text-sm transition-all duration-150 outline-none placeholder:text-muted-foreground focus:border-foreground focus:bg-background focus:ring-2 focus:ring-foreground/15"
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </div>
+          <button
+            type="submit"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-foreground px-5 text-xs font-medium text-background transition-all duration-150 hover:bg-foreground/90 active:scale-95"
+          >
             {copy.shop.search}
           </button>
         </form>
@@ -240,8 +274,10 @@ function NavLink({ href, label, isActive }: { href: string; label: string; isAct
     <Link
       href={href}
       aria-current={isActive ? "page" : undefined}
-      className={`shrink-0 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground ${
-        isActive ? "underline decoration-foreground underline-offset-8" : "hover:underline"
+      className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 md:text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+        isActive
+          ? "bg-foreground text-background shadow-2xs"
+          : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
       }`}
     >
       {label}
@@ -251,7 +287,10 @@ function NavLink({ href, label, isActive }: { href: string; label: string; isAct
 
 function AccountLink({ href, children }: { href: string; children: string }) {
   return (
-    <Link href={href} className="px-3 py-2 text-start hover:bg-muted">
+    <Link
+      href={href}
+      className="rounded-lg px-3 py-2 text-start transition-colors hover:bg-muted/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-foreground"
+    >
       {children}
     </Link>
   );
@@ -279,7 +318,9 @@ function IconButton({
       aria-label={label}
       aria-expanded={pressed}
       aria-controls={controls}
-      className="flex size-8 items-center justify-center hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+      className={`flex size-9 items-center justify-center rounded-full text-foreground/80 transition-all duration-150 active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+        pressed ? "bg-muted text-foreground" : "hover:bg-muted/80 hover:text-foreground"
+      }`}
       onClick={onClick}
     >
       {children}

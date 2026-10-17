@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Schibsted_Grotesk } from "next/font/google";
 import Link from "next/link";
+import { MessageSquare } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { AppProviders } from "@/components/shared/AppProviders";
@@ -60,7 +61,7 @@ export default async function RootLayout({ children }: TRootLayoutProps) {
       suppressHydrationWarning
       className={`${vazirmatn.variable} ${grotesk.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="flex min-h-full flex-col bg-background text-foreground selection:bg-foreground selection:text-background">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <AppProviders>
           <SiteHeader />
@@ -68,9 +69,10 @@ export default async function RootLayout({ children }: TRootLayoutProps) {
           <SiteFooter copy={copy} locale={locale} isSignedIn={user !== null} />
           <Link
             href={`${EAppRoutes.home}#faq`}
-            className="fixed end-4 bottom-4 z-30 inline-flex h-10 items-center rounded-full bg-foreground px-4 text-sm whitespace-nowrap text-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+            className="fixed end-5 bottom-5 z-30 inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-foreground/90 px-4.5 text-xs font-medium tracking-wide whitespace-nowrap text-background shadow-lg backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-foreground hover:shadow-xl active:translate-y-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
           >
-            {copy.shop.contact}
+            <MessageSquare className="size-3.5" />
+            <span>{copy.shop.contact}</span>
           </Link>
         </AppProviders>
       </body>

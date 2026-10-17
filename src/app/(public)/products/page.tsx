@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SlidersHorizontal } from "lucide-react";
 
 import { PageFrame } from "@/components/shared/PageFrame";
 import { EAppRoutes } from "@/constants/routes";
@@ -40,17 +41,23 @@ export default async function ProductsPage({ searchParams }: TProductsPageProps)
 
   return (
     <PageFrame>
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-start text-3xl md:text-4xl">{copy.shop.products}</h1>
+      <div className="animate-fade-in flex flex-col gap-8 md:gap-10">
+        <div className="flex flex-col gap-2 text-start">
+          <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            Collection
+          </span>
+          <h1 className="text-3xl font-normal tracking-tight md:text-4xl">{copy.shop.products}</h1>
           {query ? (
             <p className="text-sm text-muted-foreground">
               {copy.shop.searchResults.replace("{query}", query)}
             </p>
           ) : null}
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-4 text-sm">
-          <div className="flex gap-5">
+
+        {/* Filter and Sort Bar */}
+        <div className="flex flex-col gap-4 border-b border-border/60 pb-6 sm:flex-row sm:items-center sm:justify-between">
+          {/* Categories */}
+          <div className="flex flex-wrap items-center gap-1.5">
             <FilterLink
               label={copy.shop.filterAll}
               type={undefined}
@@ -73,7 +80,12 @@ export default async function ProductsPage({ searchParams }: TProductsPageProps)
               query={query}
             />
           </div>
-          <div className="flex gap-5">
+
+          {/* Sort Options */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="flex items-center gap-1 text-xs text-muted-foreground me-1">
+              <SlidersHorizontal className="size-3" />
+            </span>
             <SortLink
               label={copy.shop.sortNewest}
               sort={EProductSort.newest}
@@ -97,12 +109,15 @@ export default async function ProductsPage({ searchParams }: TProductsPageProps)
             />
           </div>
         </div>
+
         {items.length === 0 ? (
-          <p className="text-start text-sm text-muted-foreground">
-            {query ? copy.shop.emptySearch : copy.shop.emptyProducts}
-          </p>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <p className="text-base text-muted-foreground">
+              {query ? copy.shop.emptySearch : copy.shop.emptyProducts}
+            </p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-1 gap-y-10 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
             {items.map((product) => (
               <ProductCard key={product.id} product={product} copy={copy} locale={locale} />
             ))}
@@ -147,7 +162,11 @@ function FilterLink({
     <Link
       href={catalogHref(type, sort, query)}
       aria-current={isActive ? "page" : undefined}
-      className={isActive ? "underline underline-offset-4" : "text-muted-foreground"}
+      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+        isActive
+          ? "bg-foreground text-background shadow-xs"
+          : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground"
+      }`}
     >
       {label}
     </Link>
@@ -173,7 +192,11 @@ function SortLink({
     <Link
       href={catalogHref(type, sort, query)}
       aria-current={isActive ? "page" : undefined}
-      className={isActive ? "underline underline-offset-4" : "text-muted-foreground"}
+      className={`rounded-full px-3 py-1 text-xs font-medium transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+        isActive
+          ? "bg-secondary text-foreground font-semibold ring-1 ring-border"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+      }`}
     >
       {label}
     </Link>

@@ -10,7 +10,7 @@ export default async function NotFound() {
 
   return (
     <section className="mx-auto flex w-full max-w-lg flex-col gap-4 px-6 py-16">
-      <h1 className="text-2xl font-semibold">{copy.notFound.title}</h1>
+      <h1 className="text-3xl">{copy.notFound.title}</h1>
       <p className="text-muted-foreground">{copy.notFound.description}</p>
       <div>
         <Button asChild>

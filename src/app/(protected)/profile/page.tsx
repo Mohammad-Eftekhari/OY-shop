@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileEditor } from "@/features/profile/components/ProfileEditor";
 import { getLocale } from "@/lib/get-locale";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
@@ -15,15 +14,12 @@ export default async function ProfilePage() {
   const copy = getDictionary(locale);
 
   return (
-    <Card className="mx-auto w-full max-w-xl">
-      <CardHeader>
-        <CardTitle>{copy.profile.title}</CardTitle>
-        <CardDescription>{copy.profile.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <h1 className="sr-only">{copy.profile.title}</h1>
-        <ProfileEditor key={locale} copy={copy} />
-      </CardContent>
-    </Card>
+    <section className="mx-auto flex w-full max-w-xl flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl">{copy.profile.title}</h1>
+        <p className="text-sm text-muted-foreground">{copy.profile.description}</p>
+      </div>
+      <ProfileEditor key={locale} copy={copy} />
+    </section>
   );
 }

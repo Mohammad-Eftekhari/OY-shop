@@ -19,3 +19,15 @@ export function productDescription(
 export function sellingPrice(productPrice: number, variantPrice: number | null) {
   return variantPrice ?? productPrice;
 }
+
+export function productColors(product: Pick<TProduct, "variants">) {
+  const colors = new Map<string, TProduct["variants"][number]["color"]>();
+
+  for (const variant of product.variants) {
+    if (!colors.has(variant.color.id)) {
+      colors.set(variant.color.id, variant.color);
+    }
+  }
+
+  return [...colors.values()];
+}

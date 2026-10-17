@@ -31,7 +31,7 @@ export default function ErrorPage({ error, reset }: TErrorPageProps) {
 
   return (
     <section className="mx-auto flex w-full max-w-lg flex-col gap-4 px-6 py-16">
-      <h1 className="text-2xl font-semibold">{copy.appError.title}</h1>
+      <h1 className="text-3xl">{copy.appError.title}</h1>
       <p className="text-muted-foreground">{copy.appError.description}</p>
       <div>
         <Button type="button" onClick={reset}>

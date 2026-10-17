@@ -148,7 +148,7 @@ export const ProductGallery = ({ images, title, color, copy, locale }: TProductG
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="!inset-0 !top-0 !left-0 !h-dvh !w-screen !max-w-none !translate-x-0 !translate-y-0 gap-0 !rounded-none !bg-[#171614] !p-0 text-white !ring-0 !animate-none sm:!max-w-none"
+          className="!inset-0 !top-0 !left-0 !h-dvh !w-screen !max-w-none !translate-x-0 !translate-y-0 gap-0 !rounded-none !bg-[#111111] !p-0 text-white !ring-0 !animate-none sm:!max-w-none"
         >
           <DialogTitle className="sr-only">{title}</DialogTitle>
           <DialogClose className="absolute top-3 end-3 z-10 flex size-9 items-center justify-center text-white">

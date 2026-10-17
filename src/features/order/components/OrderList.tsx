@@ -31,7 +31,7 @@ export const OrderList = ({ copy, locale }: TOrderListProps) => {
 
   if (orders.isError) {
     return (
-      <div className="flex flex-col items-end gap-3">
+      <div className="flex flex-col items-start gap-3">
         <p>{copy.shop.loadError}</p>
         <Button type="button" variant="outline" onClick={() => void orders.refetch()}>
           {copy.shop.tryAgain}
@@ -41,8 +41,8 @@ export const OrderList = ({ copy, locale }: TOrderListProps) => {
   }
 
   return (
-    <div className="flex flex-col items-end gap-6">
-      <h1 className="text-4xl font-medium">{copy.shop.ordersTitle}</h1>
+    <div className="flex flex-col items-start gap-6">
+      <h1 className="text-3xl md:text-4xl">{copy.shop.ordersTitle}</h1>
       {orders.data.items.length === 0 ? (
         <p className="text-muted-foreground">{copy.shop.emptyOrders}</p>
       ) : null}
@@ -50,11 +50,11 @@ export const OrderList = ({ copy, locale }: TOrderListProps) => {
         {orders.data.items.map((order) => (
           <li key={order.orderNumber} className="border-b py-4">
             <Link href={orderPath(order.orderNumber)} className="flex items-center gap-4">
+              <span className="text-lg">{order.orderNumber}</span>
               <span className="text-sm text-muted-foreground">
                 {statusLabel(copy, order.status)}
               </span>
-              <span>{formatToman(order.totalToman, locale)}</span>
-              <span className="ms-auto text-lg font-medium">{order.orderNumber}</span>
+              <span className="ms-auto">{formatToman(order.totalToman, locale)}</span>
             </Link>
           </li>
         ))}

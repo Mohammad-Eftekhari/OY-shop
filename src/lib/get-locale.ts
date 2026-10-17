@@ -1,7 +1,11 @@
 import "server-only";
 
-import { ELocale, type TLocale } from "@/lib/locale";
+import { cookies } from "next/headers";
+
+import { ELocale, isLocale, LOCALE_COOKIE, type TLocale } from "@/lib/locale";
 
 export async function getLocale(): Promise<TLocale> {
-  return ELocale.fa;
+  const cookieStore = await cookies();
+  const value = cookieStore.get(LOCALE_COOKIE)?.value;
+  return isLocale(value) ? value : ELocale.fa;
 }

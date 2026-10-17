@@ -58,7 +58,7 @@ export const CartView = ({ copy, locale, isSignedIn }: TCartViewProps) => {
 
   if (cart.isError) {
     return (
-      <div className="flex flex-col items-end gap-3 text-end">
+      <div className="flex flex-col items-start gap-3 text-start">
         <p>{copy.shop.loadError}</p>
         <Button type="button" variant="outline" onClick={() => void cart.refetch()}>
           {copy.shop.tryAgain}
@@ -88,12 +88,12 @@ export const CartView = ({ copy, locale, isSignedIn }: TCartViewProps) => {
         <p className="text-sm text-muted-foreground">{copy.shop.subtotal}</p>
         <p className="text-3xl font-medium">{formatToman(subtotal, locale)}</p>
         <p className="text-sm text-muted-foreground">{copy.shop.shippingLater}</p>
-        <Button asChild className="h-12 rounded-sm">
+        <Button asChild className="h-12">
           <Link href={EAppRoutes.checkout}>{copy.shop.checkout}</Link>
         </Button>
       </aside>
       <div className="lg:col-start-1 lg:row-start-1">
-        <h1 className="mb-6 text-end text-4xl font-medium">{copy.shop.cartTitle}</h1>
+        <h1 className="mb-6 text-start text-3xl md:text-4xl">{copy.shop.cartTitle}</h1>
         <ul>
           {items.map((item) => {
             const title = pickLocaleText(locale, item.productTitleFa, item.productTitleEn);
@@ -106,7 +106,7 @@ export const CartView = ({ copy, locale, isSignedIn }: TCartViewProps) => {
                   style={{ backgroundColor: item.colorHex }}
                   aria-hidden
                 />
-                <div className="me-auto text-end">
+                <div className="me-auto text-start">
                   <Link href={productPath(item.productSlug)} className="text-lg font-medium">
                     {title}
                   </Link>
@@ -156,10 +156,10 @@ const EmptyCart = ({
   action: string;
 }) => {
   return (
-    <div className="flex flex-col items-end gap-4 py-16 text-end">
-      <h1 className="text-4xl font-medium">{copy.shop.cartEmpty}</h1>
+    <div className="flex flex-col items-start gap-4 py-16 text-start">
+      <h1 className="text-3xl md:text-4xl">{copy.shop.cartEmpty}</h1>
       <p className="text-muted-foreground">{hint}</p>
-      <Button asChild variant="outline" className="rounded-sm">
+      <Button asChild variant="outline">
         <Link href={actionHref}>{action}</Link>
       </Button>
     </div>

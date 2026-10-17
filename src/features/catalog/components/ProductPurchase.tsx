@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EApiRoutes, EAppRoutes, productPath } from "@/constants/routes";
 import { ProductGallery } from "@/features/catalog/components/ProductGallery";
 import {
+  productColors,
   productDescription,
   productTitle,
   sellingPrice,
@@ -27,7 +28,7 @@ type TProductPurchaseProps = {
 
 export const ProductPurchase = ({ product, copy, locale }: TProductPurchaseProps) => {
   const router = useRouter();
-  const colors = uniqueColors(product);
+  const colors = productColors(product);
   const [colorId, setColorId] = useState(colors[0]?.id ?? "");
   const sizes = product.variants.filter((variant) => variant.color.id === colorId);
   const [sizeId, setSizeId] = useState(
@@ -97,20 +98,18 @@ export const ProductPurchase = ({ product, copy, locale }: TProductPurchaseProps
       : null;
 
   return (
-    <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,32rem)]">
-      <div className="order-1 lg:order-2">
-        <ProductGallery
-          key={colorId || "all"}
-          images={images}
-          title={title}
-          color={color?.hex ?? "#171614"}
-          copy={copy}
-          locale={locale}
-        />
-      </div>
-      <div className="order-2 flex flex-col items-end gap-5 text-end lg:order-1">
+    <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,26rem)] lg:gap-16">
+      <ProductGallery
+        key={colorId || "all"}
+        images={images}
+        title={title}
+        color={color?.hex ?? "#161616"}
+        copy={copy}
+        locale={locale}
+      />
+      <div className="flex flex-col items-start gap-5 text-start">
         <p className="text-sm text-muted-foreground">{typeLabel}</p>
-        <h1 className="text-4xl font-medium tracking-tight">{title}</h1>
+        <h1 className="text-3xl tracking-tight md:text-4xl">{title}</h1>
         {locale === "fa" ? (
           <p className="text-sm text-muted-foreground">{product.titleEn}</p>
         ) : null}
@@ -122,32 +121,29 @@ export const ProductPurchase = ({ product, copy, locale }: TProductPurchaseProps
           ) : null}
           <span className="text-lg">{formatToman(price, locale)}</span>
         </p>
-        <div className="flex w-full flex-col items-end gap-3">
+        <div className="flex w-full flex-col items-start gap-3">
           <p className="text-sm">
             {copy.shop.color}
             {color ? `: ${locale === "fa" ? color.nameFa : color.nameEn}` : ""}
           </p>
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="flex flex-wrap justify-start gap-2">
             {colors.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 aria-label={locale === "fa" ? item.nameFa : item.nameEn}
                 aria-pressed={item.id === colorId}
-                className={`size-8 rounded-full border ${item.id === colorId ? "border-foreground p-0.5" : "border-transparent"}`}
+                className={`size-6 border ${item.id === colorId ? "border-foreground p-0.5" : "border-border"}`}
                 onClick={() => chooseColor(item.id)}
               >
-                <span
-                  className="block size-full rounded-full"
-                  style={{ backgroundColor: item.hex }}
-                />
+                <span className="block size-full" style={{ backgroundColor: item.hex }} />
               </button>
             ))}
           </div>
         </div>
-        <div className="flex w-full flex-col items-end gap-3">
+        <div className="flex w-full flex-col items-start gap-3">
           <p className="text-sm">{copy.shop.size}</p>
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="flex flex-wrap justify-start gap-2">
             {sizes.map((variant) => {
               const isUnavailable = variant.stockQuantity < 1;
               const isSelected = variant.size.id === sizeId;
@@ -158,11 +154,11 @@ export const ProductPurchase = ({ product, copy, locale }: TProductPurchaseProps
                   type="button"
                   disabled={isUnavailable}
                   aria-pressed={isSelected}
-                  className={`min-w-10 px-3 py-2 text-sm ${
+                  className={`min-w-11 border px-3 py-2 text-sm ${
                     isSelected
-                      ? "bg-foreground text-background"
-                      : "border border-border bg-card text-foreground"
-                  } disabled:bg-muted disabled:text-muted-foreground`}
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border bg-background text-foreground"
+                  } disabled:text-muted-foreground disabled:line-through`}
                   onClick={() => {
                     setSizeId(variant.size.id);
                     setMessage(null);
@@ -178,7 +174,7 @@ export const ProductPurchase = ({ product, copy, locale }: TProductPurchaseProps
         {stockText ? <p className="text-sm text-muted-foreground">{stockText}</p> : null}
         <Button
           type="button"
-          className="h-12 w-full rounded-sm"
+          className="h-12 w-full"
           disabled={!selected || selected.stockQuantity < 1 || mutation.isPending}
           onClick={() => {
             void addToCart();
@@ -194,18 +190,6 @@ export const ProductPurchase = ({ product, copy, locale }: TProductPurchaseProps
     </div>
   );
 };
-
-function uniqueColors(product: TProduct) {
-  const colors = new Map<string, TProduct["variants"][number]["color"]>();
-
-  for (const variant of product.variants) {
-    if (!colors.has(variant.color.id)) {
-      colors.set(variant.color.id, variant.color);
-    }
-  }
-
-  return [...colors.values()];
-}
 
 function imagesForColor(product: TProduct, colorId: string) {
   const matched = product.images.filter((image) => image.colorId === colorId);

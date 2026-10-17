@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   return (
     <section className="flex max-w-2xl flex-col gap-4">
-      <h1 className="text-3xl font-semibold tracking-tight">{copy.dashboard.title}</h1>
+      <h1 className="text-3xl">{copy.dashboard.title}</h1>
       <p>
         {copy.dashboard.signedInAs} <span className="font-medium">{session.user.name}</span> (
         {session.user.email}).

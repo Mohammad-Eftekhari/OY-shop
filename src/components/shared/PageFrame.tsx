@@ -5,9 +5,5 @@ type TPageFrameProps = {
 };
 
 export const PageFrame = ({ children }: TPageFrameProps) => {
-  return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-12 md:px-16">
-      {children}
-    </div>
-  );
+  return <div className="flex w-full flex-1 flex-col px-4 py-10 md:px-8 md:py-14">{children}</div>;
 };

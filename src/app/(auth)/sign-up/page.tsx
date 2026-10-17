@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EAppRoutes } from "@/constants/routes";
 import { SignUpForm } from "@/features/auth/components/SignUpForm";
 import { getLocale } from "@/lib/get-locale";
@@ -17,21 +16,18 @@ export default async function SignUpPage() {
   const copy = getDictionary(locale);
 
   return (
-    <Card className="mx-auto w-full max-w-md">
-      <CardHeader>
-        <CardTitle>{copy.signUp.title}</CardTitle>
-        <CardDescription>{copy.signUp.description}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <h1 className="sr-only">{copy.signUp.title}</h1>
-        <SignUpForm key={locale} copy={copy} />
-        <p className="text-sm text-muted-foreground">
-          {copy.signUp.prompt}{" "}
-          <Link href={EAppRoutes.signIn} className="underline-offset-4 hover:underline">
-            {copy.signUp.alternate}
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+    <section className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl">{copy.signUp.title}</h1>
+        <p className="text-sm text-muted-foreground">{copy.signUp.description}</p>
+      </div>
+      <SignUpForm key={locale} copy={copy} />
+      <p className="text-sm text-muted-foreground">
+        {copy.signUp.prompt}{" "}
+        <Link href={EAppRoutes.signIn} className="text-foreground underline underline-offset-4">
+          {copy.signUp.alternate}
+        </Link>
+      </p>
+    </section>
   );
 }

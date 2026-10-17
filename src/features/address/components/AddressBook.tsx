@@ -52,7 +52,7 @@ export const AddressBook = ({ copy }: TAddressBookProps) => {
 
   if (addresses.isError) {
     return (
-      <div className="flex flex-col items-end gap-3">
+      <div className="flex flex-col items-start gap-3">
         <p>{copy.shop.loadError}</p>
         <Button type="button" variant="outline" onClick={() => void addresses.refetch()}>
           {copy.shop.tryAgain}
@@ -62,16 +62,16 @@ export const AddressBook = ({ copy }: TAddressBookProps) => {
   }
 
   return (
-    <div className="flex flex-col items-end gap-8">
-      <div className="text-end">
-        <h1 className="text-4xl font-medium">{copy.shop.addressesTitle}</h1>
+    <div className="flex max-w-3xl flex-col items-start gap-8">
+      <div className="text-start">
+        <h1 className="text-3xl md:text-4xl">{copy.shop.addressesTitle}</h1>
         <p className="mt-2 text-muted-foreground">{copy.shop.oneDefault}</p>
       </div>
       <ul className="flex w-full flex-col gap-3">
         {addresses.data.items.map((address) => (
           <li
             key={address.id}
-            className={`flex flex-col items-end gap-1 border p-4 text-end ${address.isDefault ? "border-foreground" : "border-border"}`}
+            className={`flex flex-col items-start gap-1 border p-4 text-start ${address.isDefault ? "border-foreground" : "border-border"}`}
           >
             <p className="text-lg font-medium">{address.receiverName}</p>
             <p>{address.mobile}</p>
@@ -104,12 +104,7 @@ export const AddressBook = ({ copy }: TAddressBookProps) => {
           </li>
         ))}
       </ul>
-      <Button
-        type="button"
-        variant="outline"
-        className="rounded-sm"
-        onClick={() => setIsFormOpen((open) => !open)}
-      >
+      <Button type="button" variant="outline" onClick={() => setIsFormOpen((open) => !open)}>
         {copy.shop.newAddress}
       </Button>
       {isFormOpen ? <AddressForm copy={copy} onSaved={() => setIsFormOpen(false)} /> : null}

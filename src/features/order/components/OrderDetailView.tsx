@@ -31,7 +31,7 @@ export const OrderDetailView = ({ copy, locale, orderNumber }: TOrderDetailProps
 
   if (order.isError) {
     return (
-      <div className="flex flex-col items-end gap-3">
+      <div className="flex flex-col items-start gap-3">
         <p>{copy.shop.loadError}</p>
         <Button type="button" variant="outline" onClick={() => void order.refetch()}>
           {copy.shop.tryAgain}
@@ -44,19 +44,19 @@ export const OrderDetailView = ({ copy, locale, orderNumber }: TOrderDetailProps
   const isPending = current.status === EOrderStatus.pendingPayment;
 
   return (
-    <article className="flex flex-col items-end gap-4 text-end">
-      <div className="flex items-center gap-3">
-        <h1 className="text-4xl font-medium">
+    <article className="flex flex-col items-start gap-4 text-start">
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-3xl md:text-4xl">
           {isPending
             ? copy.shop.orderPlaced.replace("{number}", current.orderNumber)
             : current.orderNumber}
         </h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-sm">
+        <span className="border border-border px-2 py-1 text-sm">
           {statusLabel(copy, current.status)}
         </span>
       </div>
       {isPending ? <p className="text-muted-foreground">{copy.shop.paymentWindow}</p> : null}
-      <ul className="flex flex-col items-end gap-2">
+      <ul className="flex flex-col items-start gap-2">
         {current.items.map((item) => (
           <li key={item.id}>
             {pickLocaleText(locale, item.productTitleFa, item.productTitleEn)} ·{" "}

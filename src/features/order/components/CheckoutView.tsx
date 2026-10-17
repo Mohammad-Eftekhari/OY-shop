@@ -52,13 +52,13 @@ export const CheckoutView = ({ copy, locale }: TCheckoutViewProps) => {
   }
 
   if (cart.isError || addresses.isError || shipping.isError) {
-    return <p className="text-end">{copy.shop.loadError}</p>;
+    return <p className="text-start">{copy.shop.loadError}</p>;
   }
 
   if (cart.data.items.length === 0) {
     return (
-      <div className="flex flex-col items-end gap-4 text-end">
-        <h1 className="text-4xl font-medium">{copy.shop.cartEmpty}</h1>
+      <div className="flex flex-col items-start gap-4 text-start">
+        <h1 className="text-3xl md:text-4xl">{copy.shop.cartEmpty}</h1>
         <Button asChild variant="outline">
           <Link href={EAppRoutes.products}>{copy.shop.backToShop}</Link>
         </Button>
@@ -113,7 +113,7 @@ export const CheckoutView = ({ copy, locale }: TCheckoutViewProps) => {
         <p className="text-2xl font-medium">{formatToman(total, locale)}</p>
         <Button
           type="button"
-          className="h-12 rounded-sm"
+          className="h-12"
           disabled={!selectedAddress || !selectedShipping || placeOrder.isPending}
           onClick={() => void pay()}
         >
@@ -124,8 +124,8 @@ export const CheckoutView = ({ copy, locale }: TCheckoutViewProps) => {
           <p className="text-sm text-destructive">{copy.shop.couldNotPlace}</p>
         ) : null}
       </aside>
-      <div className="flex flex-col items-end gap-6 text-end lg:col-start-1 lg:row-start-1">
-        <h1 className="text-4xl font-medium">{copy.shop.checkoutTitle}</h1>
+      <div className="flex flex-col items-start gap-6 text-start lg:col-start-1 lg:row-start-1">
+        <h1 className="text-3xl md:text-4xl">{copy.shop.checkoutTitle}</h1>
         <h2 className="text-lg font-medium">{copy.shop.addressTitle}</h2>
         {addresses.data.items.length === 0 ? (
           <p className="text-muted-foreground">{copy.shop.noAddress}</p>
@@ -137,7 +137,7 @@ export const CheckoutView = ({ copy, locale }: TCheckoutViewProps) => {
               <button
                 key={address.id}
                 type="button"
-                className={`border p-4 text-end ${isSelected ? "border-foreground" : "border-border"}`}
+                className={`border p-4 text-start ${isSelected ? "border-foreground" : "border-border"}`}
                 onClick={() => setAddressId(address.id)}
               >
                 <span className="block text-lg font-medium">{address.receiverName}</span>
@@ -153,12 +153,7 @@ export const CheckoutView = ({ copy, locale }: TCheckoutViewProps) => {
             );
           })}
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          className="rounded-sm"
-          onClick={() => setIsFormOpen((open) => !open)}
-        >
+        <Button type="button" variant="outline" onClick={() => setIsFormOpen((open) => !open)}>
           {copy.shop.newAddress}
         </Button>
         {isFormOpen ? (
